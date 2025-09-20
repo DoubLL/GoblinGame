@@ -2,8 +2,8 @@ init python in cardgame:
     # temportary setup
     player_stats = CardActorStats(health=30, armor=3)
     enemy_stats = CardActorStats(health=30, armor=3)
-    player_deck = Deck(name="Player Deck", wincon=None, cards=[])
-    enemy_deck = Deck(name="Enemy Deck", wincon=None, cards=[])
+    player_deck = Deck(name="Player Deck", wincon=None, cards=[example_card]*10)
+    enemy_deck = Deck(name="Enemy Deck", wincon=None, cards=[example_card]*10)
     player = CardActor(name="Player", stats=player_stats, deck=player_deck)
     enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck)
     player.opponent = enemy
@@ -30,7 +30,9 @@ label .start:
     $ cardgame.winner = None
     $ cardgame.game_events = []
     show screen cardgame_intro
+    $ renpy.pause(0.75, hard=True)
     show screen cardgame_screen("cardgame.evaluate")
+    call .draw_cards(for_player=2, for_enemy=2)
     jump .start_round
 
 label .start_round:
@@ -43,6 +45,7 @@ label .start_round:
         cardgame.player_passed = False
         cardgame.ai_passed = False
     # TODO: call on_start_round hooks
+    call .draw_cards(for_player=3, for_enemy=3)
     jump .loop
 
 label .loop:
@@ -102,9 +105,10 @@ label .end_round:
 label .draw_cards(for_player=0,for_enemy=0):
     # TODO: play animations
     if for_player > 0:
-        $ cardgame.player.draw_cards(for_player)
+        $ cardgame.player.draw(for_player)
     if for_enemy > 0:
-        $ cardgame.enemy.draw_cards(for_enemy)
+        $ cardgame.enemy.draw(for_enemy)
+    return
 
 label .play_card(card):
     # TODO: validate card can be played
