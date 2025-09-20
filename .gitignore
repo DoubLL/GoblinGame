@@ -1,0 +1,47 @@
+# Exclude rpyc files, except the ones in old-game
+*.rpyc
+!old-game/**
+
+*.rpyc~
+*.rpymc
+*.rpy~
+log.txt
+*.save
+*.psd
+.vscode/
+game/saves/persistent
+*.bak
+cache/
+*.log
+
+game/cache/bytecode.rpyb
+game/cache/pyanalysis.rpyb
+game/cache/screens.rpyb
+game/saves/navigation.json
+traceback.txt
+errors.txt
+game/saves/navigation.json
+game/script_version.txt
+game/saves/sync/**
+
+# Ignore all files starting with renpy_warp
+renpy_warp*
+
+# OS generated files
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Icon?
+Desktop.ini
+~$*
+
+# large assets
+game/gui/*
+game/audio/*
+game/images/*
+*.psd
+*.jpg
+*.jpeg
+*.png
+*.kra
+*.kra~
