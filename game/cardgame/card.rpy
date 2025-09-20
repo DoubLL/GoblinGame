@@ -16,25 +16,31 @@ init -900 python in cardgame:
 
     def build_card_image(image_path: str, type: CardType, name: str, desc: str, flavor: str, keywords: Keywords) -> renpy.display.core.Displayable:
         name_size = 50
-        vw, vh = Text(name, size=name_size).size()
+        vw, vh = renpy.store.Text(name, size=name_size).size()
         if vw > 415:
             name_size = int(50 * (415 / vw))
-        return renpy.Composite(
+        return renpy.store.Composite(
             (600, 900),
-            (33, 127), renpy.Image(image_path),
-            (0, 0), renpy.Image(
+            (33, 127), renpy.store.Image(image_path),
+            (0, 0), renpy.store.Image(
                 "gui/cardgame/card neutral.png" # Add logic to use actor-specific background
                 ),
-            (50, 37), renpy.Text(name, size=name_size, color="#000"),
-            (535, 65), renpy.Fixed(renpy.Text(type.value[0:2], size=65, color="#000", xanchor=0.5, yanchor=0.5)),
-            (300, 445), renpy.Fixed(renpy.Text(f"{affinity.value} {type.value}", size=28, color="#000", xanchor=0.5)),
-            (15, 490), renpy.VBox(
-                renpy.Text(desc, size=34, color="#000", xalign=0.5, textalign=0.5),
-                renpy.Text(f"{{i}}{flavor}{{/i}}", size=32, color="#333", xalign=0.5, textalign=0.5),
+            (50, 37), renpy.store.Text(name, size=name_size, color="#000"),
+            (535, 65), renpy.store.Fixed(renpy.store.Text(type.value[0:2], size=65, color="#000", xanchor=0.5, yanchor=0.5)),
+            (300, 445), renpy.store.Fixed(renpy.store.Text(f"{type.value}", size=28, color="#000", xanchor=0.5)),
+            (15, 490), renpy.store.VBox(
+                renpy.store.Text(desc, size=34, color="#000", xalign=0.5, textalign=0.5),
+                renpy.store.Text(f"{{i}}{flavor}{{/i}}", size=32, color="#333", xalign=0.5, textalign=0.5),
                 xsize=570,
                 spacing=15,
             ),
-            (0, 855), renpy.Fixed(renpy.Text(", ".join(tag.name for tag in keywords if tag != keywords.None_ and tag in keywords), size=28, color="#000", xalign=0.5) if keywords != keywords.None_ else renpy.Fixed())
+            (0, 855), renpy.store.Fixed(
+                renpy.store.Text(
+                    ", ".join(tag.name for tag in keywords if tag != keywords.None_ and tag in keywords),
+                    size=28, color="#000", xalign=0.5
+                ) if keywords != keywords.None_
+                else renpy.store.Fixed()
+            )
         )
 
     class HookType(Enum):
@@ -99,7 +105,6 @@ init -900 python in cardgame:
         def copy(self) -> 'Card':
             return Card(
                 name=self.name,
-                affinity=self.affinity,
                 type_=self.type_,
                 keywords=self.keywords,
                 description=self.description,
@@ -210,4 +215,4 @@ init -900 python in cardgame:
                 fn(self, event)
 
         def __str__(self):
-            return f"{self.name} ({self.affinity.value} {self.type_.value}) - {self.hooks}"
+            return f"{self.name} ({self.type_.value}) - {self.hooks}"
