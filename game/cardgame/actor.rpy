@@ -115,7 +115,7 @@ init -890 python in cardgame:
 
         @property
         def persistent_cards(self) -> list['Card']:
-            return self.stances + self.player_effects + [self.wincon] if self.wincon else []
+            return self.stances + self.player_effects + [self.deck.wincon] if self.deck.wincon else []
 
         def reduce_health(self, amount: int, card: 'Card', event: 'CardEvent', ignore_armor: bool = False):
             renpy.log(f"Reducing health for {self.name}: {amount}")

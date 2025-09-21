@@ -64,11 +64,10 @@ init -900 python in cardgame:
 
     
     class CardEvent:
-        def __init__(self, card_owner: 'CardActor', opponent: 'CardActor', game: 'CardGame', card: 'Card'):
+        def __init__(self, card_owner: 'CardActor', opponent: 'CardActor', card: 'Card'):
             self.card = card
             self.card_owner = card_owner
             self.opponent = opponent
-            self.game = game
 
     class Card:
 
@@ -80,7 +79,7 @@ init -900 python in cardgame:
             description: str = "Description missing.",
             flavor: str = "Flavor text missing.",
             image: str = "gui/cardgame/images/default image.png",
-            condition: list[tuple[Callable, str]] = [],
+            conditions: list[tuple[Callable, str]] = [],
             hooks: Optional[dict[HookType, Callable]] = None,
             register: bool = True
         ):
@@ -89,7 +88,7 @@ init -900 python in cardgame:
             self.keywords = keywords
             self.description = description
             self.flavor = flavor
-            self.condition = condition
+            self.conditions = conditions
             self.image_path = image
             self.image = build_card_image(image, type_, name, description, flavor, keywords)
             # Normalize hook keys to stable strings (enum values) to survive reloads

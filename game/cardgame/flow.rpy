@@ -110,19 +110,32 @@ label .draw_cards(for_player=0,for_enemy=0):
         $ cardgame.enemy.draw(for_enemy)
     return
 
-label .play_card(card):
-    # TODO: validate card can be played
-    if not CAN_BE_PLAYED:
-        # TODO: show error message
-        jump .loop
-    # TODO: remove card from hand
-    # TODO: call on_other_card_played hooks
-    # TODO: call on_play hooks
+label .play_card(card, hand_index=None):
+    python:
+        for condition, message in card.conditions:
+            if not condition[0](cardgame.current_actor, cardgame.other_actor, card):
+                renpy.notify(message) # TODO: show error message as animation
+                renpy.jump("cardgame.loop")
+                
+    if hand_index is not None:
+        $ cardgame.current_actor.deck.hand.pop(hand_index)
+    else:
+        $ cardgame.current_actor.deck.hand.remove(card)
+
+    python:
+        cardevent = cardgame.CardEvent(card_owner=cardgame.current_actor, opponent=cardgame.other_actor, card=card)
+        for c in cardgame.current_actor.persistent_cards:
+            c.call_on_other_card_played(cardevent, True)
+        for c in cardgame.other_actor.persistent_cards:
+            c.call_on_other_card_played(cardevent, False)
+
     # TODO: play card animation. Variations for player/enemy and action/stance
+
     $ cardgame.game_events.append(card)
-    if card.type_ == CardType.Stance:
+    if card.type_ == cardgame.CardType.Stance:
         call .add_stance(card)
     # TODO: add card to discard pile if action
+    call .switch_actors
     jump .loop
 
 label .add_stance(card):
