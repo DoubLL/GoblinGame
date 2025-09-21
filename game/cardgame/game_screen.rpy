@@ -65,10 +65,6 @@ screen cardgame_screen(eval_label):
     add "gui/cardgame/battlefield.png":
         xsize 1.0
         ysize 1.0
-    button:
-        xfill True
-        yfill True
-        action Jump(eval_label)
 
     # Player hand
     for i, card in enumerate(cardgame.player.deck.hand):
@@ -85,7 +81,7 @@ screen cardgame_screen(eval_label):
             idle card.image
             hover card.image
             action (
-                [SetVariable("cardgame.player_selected_card", card), Jump(eval_label)]
+                [SetVariable("cardgame.player_selected_card", (card, i)), Jump(eval_label)]
                 if cardgame.current_actor == cardgame.player and not cardgame.player_passed
                 else NullAction())
             xpos x1
@@ -129,6 +125,17 @@ screen cardgame_screen(eval_label):
             xanchor 1.0
             yanchor 1.0
             zoom 0.3
+    
+    # Pass Button
+    if cardgame.current_actor == cardgame.player and not cardgame.player_passed:
+        textbutton "Pass":
+            action (
+                [SetVariable("cardgame.player_selected_card", None), Jump(eval_label)]
+            )
+            xpos 1900
+            ypos 700
+            xanchor 1.0
+            yanchor 1.0
 
     # Enemy hand
     for i, card in enumerate(cardgame.enemy.deck.hand):
@@ -178,7 +185,7 @@ screen cardgame_screen(eval_label):
             xanchor 0.5
             yanchor 0.5
             zoom 0.3
-    
+
     # Player Chibi
     add "gui/cardgame/chibi base.png" at cardgame_player_chibi:
         matrixcolor TintMatrix("#497f49")
@@ -288,7 +295,7 @@ screen cardgame_debug():
         text "Enemy Deck Size: [cardgame.enemy.deck.deck_size]"
         text "Player Discard Size: [cardgame.player.deck.discard_size]"
         text "Enemy Discard Size: [cardgame.enemy.deck.discard_size]"
-        text "Player Selected Card: [cardgame.player_selected_card.name if cardgame.player_selected_card else 'None']"
+        text "Player Selected Card: [cardgame.player_selected_card[0].name if cardgame.player_selected_card else 'None'] (at index [cardgame.player_selected_card[1] if cardgame.player_selected_card else 'None'])"
         text "AI Selected Card: [cardgame.ai_selected_card.name if cardgame.ai_selected_card else 'None']"
         text "Player Passed: [cardgame.player_passed]"
         text "AI Passed: [cardgame.ai_passed]"

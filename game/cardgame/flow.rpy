@@ -31,7 +31,7 @@ label .start:
     $ cardgame.game_events = []
     show screen cardgame_intro
     $ renpy.pause(0.75, hard=True)
-    show screen cardgame_screen("cardgame.evaluate")
+    show screen cardgame_screen("cardgame.loop")
     call .draw_cards(for_player=2, for_enemy=2)
     jump .start_round
 
@@ -46,12 +46,11 @@ label .start_round:
         cardgame.ai_passed = False
     # TODO: call on_start_round hooks
     call .draw_cards(for_player=3, for_enemy=3)
-    jump .loop
+    jump .wait
 
-label .loop:
+label .wait:
     $ renpy.pause(hard=True)
-
-label .evaluate:
+label .loop:
     if cardgame.winner:
         jump .end_game
 
@@ -78,29 +77,31 @@ label .player_turn:
     # TODO: everything
     if cardgame.player_selected_card is None:
         $ cardgame.player_passed = True
+        $ cardgame.game_events.append(f"{cardgame.player.name} passes")
         call .pass_turn
     else:
-        call .play_card(cardgame.player_selected_card)
+        call .play_card(cardgame.player_selected_card[0], cardgame.player_selected_card[1])
     call .switch_actors
-    jump .loop
+    jump .wait
 
 
 label .enemy_turn:
     $ cardgame.ai_selected_card = None # TODO: AI logic to select a card or pass
     if cardgame.ai_selected_card is None:
         $ cardgame.ai_passed = True
+        $ cardgame.game_events.append(f"{cardgame.enemy.name} passes")
         call .pass_turn
     else:
         call .play_card(cardgame.ai_selected_card)
     call .switch_actors
-    jump .loop
+    jump .wait
 
 
 label .end_round:
     # TODO: call on_end_round hooks
     if cardgame.winner:
         jump .end_game
-    jump .loop
+    jump .start_round
 
 label .draw_cards(for_player=0,for_enemy=0):
     # TODO: play animations
@@ -115,9 +116,11 @@ label .play_card(card, hand_index=None):
         for condition, message in card.conditions:
             if not condition[0](cardgame.current_actor, cardgame.other_actor, card):
                 renpy.notify(message) # TODO: show error message as animation
-                renpy.jump("cardgame.loop")
+                renpy.jump("cardgame.wait")
                 
     if hand_index is not None:
+        if hand_index < 0 or hand_index >= len(cardgame.current_actor.deck.hand):
+            $ raise Exception("Invalid hand index")
         $ cardgame.current_actor.deck.hand.pop(hand_index)
     else:
         $ cardgame.current_actor.deck.hand.remove(card)
@@ -135,8 +138,7 @@ label .play_card(card, hand_index=None):
     if card.type_ == cardgame.CardType.Stance:
         call .add_stance(card)
     # TODO: add card to discard pile if action
-    call .switch_actors
-    jump .loop
+    jump .switch_actors
 
 label .add_stance(card):
     # TODO: add stance animation
@@ -149,14 +151,18 @@ label .pass_turn:
     return
 
 label .switch_actors:
+    if cardgame.player_passed and cardgame.ai_passed:
+        jump .end_round
     if cardgame.current_actor == cardgame.player:
         if cardgame.ai_passed:
-            return
+            jump .wait
         $ cardgame.current_actor = cardgame.enemy
         $ cardgame.other_actor = cardgame.player
+        jump .loop
     else:
         if cardgame.player_passed:
-            return
+            jump .loop
         $ cardgame.current_actor = cardgame.player
         $ cardgame.other_actor = cardgame.enemy
-    return
+        jump .wait
+    $ raise Exception("Unreachable")
