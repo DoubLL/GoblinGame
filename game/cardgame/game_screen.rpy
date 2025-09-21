@@ -51,8 +51,10 @@ screen cardgame_intro():
     zorder 10
     add "gui/cardgame/vs left.png" at cardgame_vs_left
     add "gui/cardgame/vs right.png" at cardgame_vs_right
-    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_left
-    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_right
+    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_left:
+        matrixcolor TintMatrix("#497f49")
+    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_right:
+        matrixcolor TintMatrix("#ecc5a1ff")
     timer 1.25 action Hide()
 
 screen cardgame_screen(eval_label):
@@ -82,7 +84,10 @@ screen cardgame_screen(eval_label):
         imagebutton at cardgame_card_size(z1):
             idle card.image
             hover card.image
-            action [SetVariable("cardgame.player_selected_card", card), Jump(eval_label)]
+            action (
+                [SetVariable("cardgame.player_selected_card", card), Jump(eval_label)]
+                if cardgame.current_actor == cardgame.player and not cardgame.player_passed
+                else NullAction())
             xpos x1
             ypos y1
             xanchor 0.5
@@ -175,7 +180,8 @@ screen cardgame_screen(eval_label):
             zoom 0.3
     
     # Player Chibi
-    add "gui/cardgame/chibi base.png" at cardgame_player_chibi
+    add "gui/cardgame/chibi base.png" at cardgame_player_chibi:
+        matrixcolor TintMatrix("#497f49")
     bar at cardgame_player_chibi:
         yoffset -250
         xoffset -10
@@ -205,7 +211,8 @@ screen cardgame_screen(eval_label):
         size 18
 
     # Opponent Chibi
-    add "gui/cardgame/chibi base.png" at cardgame_enemy_chibi
+    add "gui/cardgame/chibi base.png" at cardgame_enemy_chibi:
+        matrixcolor TintMatrix("#ecc5a1")
     bar at cardgame_enemy_chibi:
         yoffset -250
         xoffset -10
@@ -248,3 +255,40 @@ screen cardgame_screen(eval_label):
             yanchor tooltip[8]
     else:
         $ tooltip = None
+
+    use cardgame_debug
+    use cardgame_eventlog
+
+screen cardgame_eventlog():
+    vbox:
+        xpos 1900
+        ypos 20
+        xanchor 1.0
+        yanchor 0.0
+        spacing 5
+        text "Event Log"
+        for event in cardgame.game_events[-5:]:
+            if isinstance(event, str):
+                text event
+            else: # is card
+                text event.name
+
+screen cardgame_debug():
+    vbox:
+        xpos 10
+        ypos 10
+        spacing 5
+        text "Debug Info"
+        text "Round: [cardgame.round]"
+        text "Current Actor: [cardgame.current_actor.name if cardgame.current_actor else 'None']"
+        text "Other Actor: [cardgame.other_actor.name if cardgame.other_actor else 'None']"
+        text "Player Hand Size: [cardgame.player.deck.hand_size]"
+        text "Enemy Hand Size: [cardgame.enemy.deck.hand_size]"
+        text "Player Deck Size: [cardgame.player.deck.deck_size]"
+        text "Enemy Deck Size: [cardgame.enemy.deck.deck_size]"
+        text "Player Discard Size: [cardgame.player.deck.discard_size]"
+        text "Enemy Discard Size: [cardgame.enemy.deck.discard_size]"
+        text "Player Selected Card: [cardgame.player_selected_card.name if cardgame.player_selected_card else 'None']"
+        text "AI Selected Card: [cardgame.ai_selected_card.name if cardgame.ai_selected_card else 'None']"
+        text "Player Passed: [cardgame.player_passed]"
+        text "AI Passed: [cardgame.ai_passed]"
