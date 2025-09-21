@@ -2,8 +2,8 @@ init python in cardgame:
     # temportary setup
     player_stats = CardActorStats(health=30, armor=3)
     enemy_stats = CardActorStats(health=30, armor=3)
-    player_deck = Deck(name="Player Deck", wincon=None, cards=[example_card]*10)
-    enemy_deck = Deck(name="Enemy Deck", wincon=None, cards=[example_card]*10)
+    player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card]*10)
+    enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card]*10)
     player = CardActor(name="Player", stats=player_stats, deck=player_deck)
     enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck)
     player.opponent = enemy
