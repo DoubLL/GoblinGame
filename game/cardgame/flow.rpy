@@ -4,8 +4,8 @@ init python in cardgame:
     enemy_stats = CardActorStats(health=30, armor=3)
     player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card, example_stance]*7)
     enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card, example_stance]*7)
-    player = CardActor(name="Player", stats=player_stats, deck=player_deck)
-    enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck)
+    player = CardActor(name="Player", stats=player_stats, deck=player_deck.copy())
+    enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck.copy())
     player.opponent = enemy
     enemy.opponent = player
 
@@ -26,13 +26,17 @@ label cardgame:
     return
 
 label .start:
-    $ cardgame.round = 0
-    $ cardgame.winner = None
-    $ cardgame.game_events = []
+    python:
+        cardgame.round = 0
+        cardgame.winner = None
+        cardgame.game_events = []
+        cardgame.player.deck = cardgame.player_deck.copy()
+        cardgame.player.deck.shuffle()
+        cardgame.enemy.deck = cardgame.enemy_deck.copy()
+        cardgame.enemy.deck.shuffle()
     show screen cardgame_intro
     $ renpy.pause(0.75, hard=True)
     show screen cardgame_screen("cardgame.loop")
-    call .draw_cards(for_player=2, for_enemy=2)
     jump .start_round
 
 label .start_round:
@@ -44,8 +48,9 @@ label .start_round:
         cardgame.other_actor = cardgame.enemy
         cardgame.player_passed = False
         cardgame.ai_passed = False
-    # TODO: call on_start_round hooks
-    call .draw_cards(for_player=3, for_enemy=3)
+    call screen cardgame_new_round(cardgame.round)
+    pause 0.25
+    call .draw_cards(for_player=(5 if cardgame.round == 1 else 3), for_enemy=(5 if cardgame.round == 1 else 3))
     jump .wait
 
 label .wait:

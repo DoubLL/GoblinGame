@@ -1,28 +1,3 @@
-transform cardgame_vs_left():
-    pos (0, 0.5)
-    anchor (1.0, 0.5)
-    easein 0.75 anchor (0, 0.5)
-    on hide:
-        easeout 0.5 anchor (1.0, 0.5)
-transform cardgame_vs_right():
-    pos (1.0, 0.5)
-    anchor (0, 0.5)
-    easein 0.75 anchor (1.0, 0.5)
-    on hide:
-        easeout 0.5 anchor (0, 0.5)
-transform cardgame_vs_chibi_left():
-    pos (0.333, 0)
-    anchor (0.5, 1.0)
-    easein 0.75 pos(0.25, 0.5) anchor (0.5, 0.75)
-    on hide:
-        easeout 0.5 pos(-0.5, 0.5) anchor (1.0, 0.5)
-transform cardgame_vs_chibi_right():
-    pos (0.666, 1.0)
-    anchor (0.5, 0)
-    easein 0.75 pos(0.75, 0.5) anchor (0.5, 0.25)
-    on hide:
-        easeout 0.5 pos(1.5, 0.5) anchor (0, 0.5)
-
 transform cardgame_card_size(z):
     zoom z
 transform cardgame_tooltip(x1, x2, y1, y2, z1, z2, time=0.25):
@@ -44,19 +19,6 @@ transform cardgame_enemy_chibi:
 transform cardgame_crop_armor(armor, max_armor):
     crop (0.0, 1.0 - armor / max_armor, 1.0, 1.0)
     
-
-
-screen cardgame_intro():
-    modal True
-    zorder 10
-    add "gui/cardgame/vs left.png" at cardgame_vs_left
-    add "gui/cardgame/vs right.png" at cardgame_vs_right
-    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_left:
-        matrixcolor TintMatrix("#497f49")
-    add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_right:
-        matrixcolor TintMatrix("#ecc5a1ff")
-    timer 1.25 action Hide()
-
 screen cardgame_screen(eval_label):
 
     default tooltip = None
@@ -91,7 +53,7 @@ screen cardgame_screen(eval_label):
 
     # Player Wincondition
     if cardgame.player.deck.wincon:
-        imagebutton at cardgame_card_size(z1):
+        imagebutton at cardgame_card_size(0.3):
             idle cardgame.player.deck.wincon.image
             hover cardgame.player.deck.wincon.image
             action NullAction()

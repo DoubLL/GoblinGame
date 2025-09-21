@@ -109,7 +109,7 @@ init -900 python in cardgame:
                 description=self.description,
                 flavor=self.flavor,
                 image=self.image_path,
-                condition=self.condition,
+                conditions=self.conditions,
                 hooks=self.hooks,
                 register=False
             )
