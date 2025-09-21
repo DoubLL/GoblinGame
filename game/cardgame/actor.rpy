@@ -95,18 +95,17 @@ init -890 python in cardgame:
             if card.type_ != CardType.Stance:
                 raise ValueError("Can only add stances with add_stance()")
             # Remove any conflicting stances and call hooks
-            removed_stances = [s for s in self._stances if s.tags.intersection(card.tags)]
+            removed_stances = [s for s in self._stances if s.keywords and s.keywords.intersection(card.keywords)]
+            card_event = CardEvent(self, self.opponent, card)
             for s in removed_stances:
                 for c in self.persistent_cards:
-                    c.call_on_lose_stance(CardEvent(self, self.opponent, self.game, card), s)
+                    c.call_on_lose_stance(card_event, s)
                 for c in self.opponent.persistent_cards:
-                    c.call_on_enemy_lose_stance(CardEvent(self, self.opponent, self.game, card), s)
+                    c.call_on_enemy_lose_stance(card_event, s)
             # Add the new stance and call hooks
-            self._stances = [s for s in self._stances if not s.tags.intersection(card.tags)]
-            for c in self.persistent_cards:
-                c.call_on_gain_stance(CardEvent(self, self.opponent, self.game, card), card)
-            for c in self.opponent.persistent_cards:
-                c.call_on_enemy_gain_stance(CardEvent(self, self.opponent, self.game, card), card)
+            self._stances = [s for s in self._stances if not s.keywords or not s.keywords.intersection(card.keywords)]
+            for c in self.persistent_cards + self.opponent.persistent_cards:
+                c.call_on_gain_stance(card_event, self, True)
             self._stances.append(card)
 
         @property

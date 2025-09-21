@@ -114,7 +114,6 @@ init -900 python in cardgame:
                 register=False
             )
 
-        ON_PLAY_TYPE = Callable[['Card', CardEvent], 'Card']
         def _get_hook(self, hook_type: HookType):
             # Accept both enum and string keys, and match across reloads by enum.value
             try_key = hook_type.value if isinstance(hook_type, HookType) else hook_type
@@ -134,7 +133,6 @@ init -900 python in cardgame:
                 return result if result and isinstance(result, Card) else self
             return self
 
-        ON_OTHER_CARD_PLAYED_TYPE = Callable[['Card', CardEvent, bool], 'Card']
         def call_on_other_card_played(self, event: CardEvent, is_mine: bool) -> 'Card':
             fn = self._get_hook(HookType.ON_OTHER_CARD_PLAYED)
             if fn:
@@ -142,8 +140,6 @@ init -900 python in cardgame:
                 return result if result and isinstance(result, Card) else event.card
             return event.card
 
-        ON_START_ROUND_TYPE = \
-        ON_END_ROUND_TYPE = Callable[[CardEvent], None]
         def call_on_start_round(self, event: CardEvent) -> None:
             fn = self._get_hook(HookType.ON_START_ROUND)
             if fn:
@@ -153,14 +149,6 @@ init -900 python in cardgame:
             if fn:
                 fn(self, event)
 
-        ON_LOSE_HEALTH_TYPE = \
-        ON_GAIN_HEALTH_TYPE = \
-        ON_ENEMY_LOSE_HEALTH_TYPE = \
-        ON_ENEMY_GAIN_HEALTH_TYPE = \
-        ON_LOSE_ARMOR_TYPE = \
-        ON_GAIN_ARMOR_TYPE = \
-        ON_ENEMY_LOSE_ARMOR_TYPE = \
-        ON_ENEMY_GAIN_ARMOR_TYPE = Callable[['Card', CardEvent, int], int]
         def _manipulate_value(self, hook_type: HookType, event: CardEvent, amount: int) -> int:
             fn = self._get_hook(hook_type)
             if fn:
@@ -185,8 +173,6 @@ init -900 python in cardgame:
         def call_on_enemy_gain_armor(self, event: CardEvent, amount: int) -> int:
             return self._manipulate_value(HookType.ON_ENEMY_GAIN_ARMOR, event, amount)
 
-        ON_HEALTH_ADJUSTED_TYPE = \
-        ON_ENEMY_HEALTH_ADJUSTED_TYPE = Callable[['Card', CardEvent], None]
         def call_on_health_adjusted(self, event: CardEvent) -> None:
             fn = self._get_hook(HookType.ON_HEALTH_ADJUSTED)
             if fn:
@@ -196,18 +182,15 @@ init -900 python in cardgame:
             if fn:
                 fn(self, event)
 
-        ON_GAIN_STANCE_TYPE = Callable[['Card', CardEvent, bool], None]
-        ON_LOSE_STANCE_TYPE = Callable[['Card', CardEvent, bool], None]
-        def call_on_gain_stance(self, event: CardEvent, is_forced: bool) -> None:
+        def call_on_gain_stance(self, event: CardEvent, target: 'CardActor', is_forced: bool) -> None:
             fn = self._get_hook(HookType.ON_GAIN_STANCE)
             if fn:
-                fn(self, event, is_forced)
-        def call_on_lose_stance(self, event: CardEvent, is_forced: bool) -> None:
+                fn(self, event, target, is_forced)
+        def call_on_lose_stance(self, event: CardEvent, target: 'CardActor', is_forced: bool) -> None:
             fn = self._get_hook(HookType.ON_LOSE_STANCE)
             if fn:
-                fn(self, event, is_forced)
+                fn(self, event, target, is_forced)
 
-        ON_ATTEMPT_WIN_TYPE = Callable[['Card', CardEvent], None]
         def call_on_attempt_win(self, event: CardEvent) -> None:
             fn = self._get_hook(HookType.ON_ATTEMPT_WIN)
             if fn:

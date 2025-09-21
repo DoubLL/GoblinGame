@@ -2,8 +2,8 @@ init python in cardgame:
     # temportary setup
     player_stats = CardActorStats(health=30, armor=3)
     enemy_stats = CardActorStats(health=30, armor=3)
-    player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card]*10)
-    enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card]*10)
+    player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card, example_stance]*7)
+    enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card, example_stance]*7)
     player = CardActor(name="Player", stats=player_stats, deck=player_deck)
     enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck)
     player.opponent = enemy
@@ -86,7 +86,11 @@ label .player_turn:
 
 
 label .enemy_turn:
-    $ cardgame.ai_selected_card = None # TODO: AI logic to select a card or pass
+    pause 0.5 # TODO: enemy thinking animation
+    if cardgame.enemy.deck.hand_size > 3:
+        $ cardgame.ai_selected_card = cardgame.enemy.deck.hand[0] # TODO: AI logic to select a card or pass
+    else:
+        $ cardgame.ai_selected_card = None
     if cardgame.ai_selected_card is None:
         $ cardgame.ai_passed = True
         $ cardgame.game_events.append(f"{cardgame.enemy.name} passes")
@@ -132,12 +136,18 @@ label .play_card(card, hand_index=None):
         for c in cardgame.other_actor.persistent_cards:
             c.call_on_other_card_played(cardevent, False)
 
-    # TODO: play card animation. Variations for player/enemy and action/stance
-
-    $ cardgame.game_events.append(card)
+    call screen play_card(
+        card,
+        is_player=(cardgame.current_actor == cardgame.player),
+        is_stance=(card.type_ == cardgame.CardType.Stance)
+        )
+    pause 0.5 # let animation finish
+    $ cardgame.game_events.append(card) # TODO: Use cardevent instead to determine actor
     if card.type_ == cardgame.CardType.Stance:
         call .add_stance(card)
-    # TODO: add card to discard pile if action
+    else:
+        $ cardgame.current_actor.deck.discard(card)
+    
     jump .switch_actors
 
 label .add_stance(card):

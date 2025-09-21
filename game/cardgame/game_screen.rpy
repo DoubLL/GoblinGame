@@ -61,7 +61,6 @@ screen cardgame_screen(eval_label):
 
     default tooltip = None
 
-    modal True
     add "gui/cardgame/battlefield.png":
         xsize 1.0
         ysize 1.0
