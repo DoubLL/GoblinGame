@@ -104,10 +104,42 @@ transform cardgame_vs_chibi_right():
 screen cardgame_intro():
     modal True
     zorder 10
+
+    button:
+        xfill True
+        yfill True
+        action Hide()
+    timer 1 action Hide()
+
     add "gui/cardgame/vs left.png" at cardgame_vs_left
     add "gui/cardgame/vs right.png" at cardgame_vs_right
     add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_left:
         matrixcolor TintMatrix("#497f49")
     add "gui/cardgame/chibi base.png" at cardgame_vs_chibi_right:
         matrixcolor TintMatrix("#ecc5a1ff")
-    timer 1.25 action Hide()
+
+transform cardgame_player_draws_card(target_x):
+    pos (1900, 1060)
+    anchor (1.0, 1.0)
+    zoom 0.3
+    ease 0.5 zoom 0.3 knot 0.5 anchor (0.5, 1.0) pos (target_x, 1200) knot (target_x+300, 800) knot (1600, 800)
+
+transform cardgame_enemy_draws_card(target_x):
+    pos (20, 20)
+    anchor (0, 0)
+    zoom 0.3
+    ease 0.5 zoom 0.3 knot 0.5 anchor (0.5, 0) pos (target_x, -100) knot (target_x-300, 280) knot (320, 280)
+
+screen player_draws_card(card):
+    default x = int(960 + (i - (len(cardgame.player.deck.hand) + 1)/ 2) * 120)
+    zorder 7
+    #timer 0.5 action Hide()
+    timer 0.5 action [Function(cardgame.player.deck.add_to_hand, card), Hide()]
+    add card.image at cardgame_player_draws_card(x)
+
+screen enemy_draws_card(card):
+    default x = int(960 - (i - (len(cardgame.enemy.deck.hand) + 1) / 2) * 120)
+    zorder 6
+    text str(x)
+    add "gui/cardgame/cardback elf.png" at cardgame_enemy_draws_card(x)
+    timer 0.5 action [Function(cardgame.enemy.deck.add_to_hand, card), Hide()]

@@ -113,11 +113,18 @@ label .end_round:
     jump .start_round
 
 label .draw_cards(for_player=0,for_enemy=0):
-    # TODO: play animations
-    if for_player > 0:
-        $ cardgame.player.draw(for_player)
-    if for_enemy > 0:
-        $ cardgame.enemy.draw(for_enemy)
+    python:
+        for i in range(max(for_player, for_enemy)):
+            if i < for_player:
+                card = cardgame.player.deck.pop_card()
+                if card:
+                    renpy.show_screen("player_draws_card", card, _tag=f"player_draw_{i}")
+            if i < for_enemy:
+                card = cardgame.enemy.deck.pop_card()
+                if card:
+                    renpy.show_screen("enemy_draws_card", card, _tag=f"enemy_draws_{i}")
+            if callable(renpy.pause):
+                renpy.pause(0.25, hard=True)
     return
 
 label .play_card(card, hand_index=None):

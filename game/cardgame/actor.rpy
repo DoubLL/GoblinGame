@@ -40,12 +40,16 @@ init -890 python in cardgame:
                 self.cards.append(card_to_add)
             random.shuffle(self.cards)
 
-        def draw(self, amount: int = 1) -> list[Card]:
-            drawn = self.cards[:amount]
-            self.cards = self.cards[amount:]
-            self.hand.extend(drawn)
-            return drawn
-            
+        def pop_card(self) -> Card | None:
+            if not self.cards:
+                return None
+            card = self.cards.pop()
+            return card
+
+        def add_to_hand(self, card: Card) -> None:
+            if card:
+                self.hand.append(card)
+
         def discard(self, card: Card) -> None:
             self.discard_pile.append(card)
 
@@ -173,9 +177,6 @@ init -890 python in cardgame:
             # Apply the gain
             self.armor = min(self.max_armor, self.armor + amount)
             renpy.notify(f"{self.name} gains {amount} armor!")
-
-        def draw(self, num_cards: int = 1) -> list['Card']:
-            return self.deck.draw(num_cards)
 
         def shuffle_card_into_deck(self, card: 'Card'):
             self.deck.shuffle(card)
