@@ -100,7 +100,7 @@ screen cardgame_screen(eval_label):
 
     # Enemy hand
     for i, card in enumerate(cardgame.enemy.deck.hand):
-        $ x = int(960 + (i - (len(cardgame.enemy.deck.hand) - 1) / 2) * 120)
+        $ x = int(960 - (i - (len(cardgame.enemy.deck.hand) - 1) / 2) * 120)
         $ card = card
         imagebutton at cardgame_card_size(0.3), cardgame_rotate_card:
             idle "gui/cardgame/cardback elf.png" # TODO: Actor based cardback

@@ -133,7 +133,6 @@ transform cardgame_enemy_draws_card(target_x):
 screen player_draws_card(card):
     default x = int(960 + (i - (len(cardgame.player.deck.hand) + 1)/ 2) * 120)
     zorder 7
-    #timer 0.5 action Hide()
     timer 0.5 action [Function(cardgame.player.deck.add_to_hand, card), Hide()]
     add card.image at cardgame_player_draws_card(x)
 
