@@ -211,7 +211,7 @@ screen cardgame_screen(eval_label):
         size 18
 
     # Handle hover tooltip
-    $ tmptip = GetTooltip() # (0: image, 1: x1, 2: x2, 3: y1, 4: y2, 5: z1, 6: z2, 7: xanchor, 8: yanchor)
+    $ tmptip = GetTooltip(screen="cardgame_screen") # (0: image, 1: x1, 2: x2, 3: y1, 4: y2, 5: z1, 6: z2, 7: xanchor, 8: yanchor)
     if tooltip: # If there is an old tooltip, play the hide animation 
         add tooltip[0] at cardgame_tooltip(tooltip[2], tooltip[1], tooltip[4], tooltip[3], tooltip[6], tooltip[5], 0.15):
             xanchor tooltip[7]
@@ -225,21 +225,107 @@ screen cardgame_screen(eval_label):
         $ tooltip = None
 
     use cardgame_debug
-    use cardgame_eventlog
+
+    imagebutton at cardgame_card_size(0.5):
+        idle "gui/cardgame/event log toggle.png"
+        hover "gui/cardgame/event log toggle.png"
+        xpos 1900
+        ypos 0.5
+        xanchor 1.0
+        yanchor 0.5
+        action ToggleScreen("cardgame_eventlog")
+
+transform eventlog_slide:
+    xpos 1920
+    ypos 0.5
+    xanchor 0
+    yanchor 0.5
+    easein 0.25 xanchor 1.0
+    on hide:
+        easeout 0.25 xanchor 0
+    
+transform cardgame_eventlog_cardimage:
+    zoom 0.1
+    rotate -10
+    xalign 0.0
+
+transform cardgame_eventlog_tooltip(x1, x2, y1, y2, z1, z2, r1, r2, anchor1, anchor2, time=0.3):
+    pos(x1, y1) zoom z1 rotate r1 anchor anchor1
+    ease time pos(x2, y2) zoom z2 rotate r2 anchor anchor2
 
 screen cardgame_eventlog():
-    vbox:
-        xpos 1900
-        ypos 20
-        xanchor 1.0
-        yanchor 0.0
-        spacing 5
-        text "Event Log"
-        for event in cardgame.game_events[-5:]:
-            if isinstance(event, str):
-                text event
-            else: # is card
-                text event.name
+
+    default hovered_image = None
+    default last_tooltip = None
+    default last_focus = None
+    default tooltip = None
+    default focus = None
+    zorder 5
+    button:
+        xfill True
+        yfill True
+        action Hide()
+
+    frame at eventlog_slide:
+        background "gui/cardgame/event log.png"
+        ysize 850
+        xsize 490
+        padding (10, 20, 0, 20)
+        vbox:
+            spacing 5
+            for event in cardgame.game_events:
+                if isinstance(event, str):
+                    text event:
+                        xalign 1.0
+                        size 30
+                        color "#000"
+                else:
+                    frame:
+                        background ("#e2212188" if event.card_owner != cardgame.player else "#684bec44")
+                        padding (10,0)
+                        ysize 110
+                        imagebutton at cardgame_eventlog_cardimage:
+                            idle event.card.image
+                            hover event.card.image
+                            action NullAction()
+                            hovered [SetScreenVariable("hovered_image", event.card.image), CaptureFocus("asdf")]
+                            unhovered [SetScreenVariable("hovered_image", None), ClearFocus("asdf")]
+                            tooltip (event.card.image)
+                        text event.card.name:
+                            xalign 1.0
+                            yalign 0.5
+
+                        text event.card_owner.name:
+                            size 20
+                            xalign 1.0
+                            yalign 0.5
+                            yoffset -30
+    
+    $ tooltip = GetTooltip(screen="cardgame_eventlog")
+    $ focus = renpy.focus_coordinates()
+    if last_tooltip and last_focus:
+        add last_tooltip at cardgame_eventlog_tooltip(
+            int(last_focus[0]),
+            int(last_focus[0]-15),
+            int(last_focus[1]),
+            int(last_focus[1]-14),
+            0.4, 0.1, 0, -10,
+            (0.85, 0.5), (0, 0))
+
+    if tooltip and focus:
+        $ last_focus = focus
+        $ last_tooltip = tooltip
+        add last_tooltip at cardgame_eventlog_tooltip(
+            int(focus[0]-15),
+            int(focus[0]),
+            int(focus[1]-14),
+            int(focus[1]),
+            0.1, 0.4, -10, 0,
+            (0, 0), (0.85, 0.5))
+    else:
+        $ last_tooltip = None
+        $ last_focus = None
+
 
 screen cardgame_debug():
     vbox:

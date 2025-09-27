@@ -40,7 +40,6 @@ label .start:
     jump .start_round
 
 label .start_round:
-    # TODO: show animation
     python:
         cardgame.round += 1
         cardgame.game_events.append(f"Round {cardgame.round} begins!")
@@ -153,8 +152,8 @@ label .play_card(card, hand_index=None):
         is_player=(cardgame.current_actor == cardgame.player),
         is_stance=(card.type_ == cardgame.CardType.Stance)
         )
-    pause 0.5 # let animation finish
-    $ cardgame.game_events.append(card) # TODO: Use cardevent instead to determine actor
+    pause 0.5
+    $ cardgame.game_events.append(cardevent)
     if card.type_ == cardgame.CardType.Stance:
         call .add_stance(card)
     else:

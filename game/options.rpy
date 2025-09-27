@@ -4,9 +4,6 @@
 ## them. Lines beginning with a single '#' mark are commented-out code, and you
 ## may want to uncomment them when appropriate.
 
-## TODO: Change these top three values (config.name, build.name, and
-## config.save_directory) to something unique for your project!
-
 ## Basics ######################################################################
 
 ## A human-readable name of the game. This is used to set the default window

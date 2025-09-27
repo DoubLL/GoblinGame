@@ -140,5 +140,5 @@ screen enemy_draws_card(card):
     default x = int(960 - (i - (len(cardgame.enemy.deck.hand) + 1) / 2) * 120)
     zorder 6
     text str(x)
-    add "gui/cardgame/cardback elf.png" at cardgame_enemy_draws_card(x)
+    add "gui/cardgame/cardback elf.png" at cardgame_enemy_draws_card(x) #TODO: Actor based cardback
     timer 0.5 action [Function(cardgame.enemy.deck.add_to_hand, card), Hide()]
