@@ -224,7 +224,7 @@ screen cardgame_screen(eval_label):
     else:
         $ tooltip = None
 
-    use cardgame_debug
+    #use cardgame_debug
 
     imagebutton at cardgame_card_size(0.5):
         idle "gui/cardgame/event log toggle.png"
@@ -247,7 +247,7 @@ transform eventlog_slide:
         easeout 0.25 xanchor 0
     
 transform cardgame_eventlog_cardimage:
-    zoom 0.1
+    zoom 0.125
     rotate -10
     xalign 0.0
 
@@ -294,6 +294,8 @@ screen cardgame_eventlog():
                                 hovered [SetScreenVariable("hovered_image", event.card.image), CaptureFocus("asdf")]
                                 unhovered [SetScreenVariable("hovered_image", None), ClearFocus("asdf")]
                                 tooltip (event.card.image)
+                                yoffset -15
+                                xoffset -5
                             text event.card.name:
                                 xalign 1.0
                                 xoffset -15
@@ -327,21 +329,23 @@ screen cardgame_eventlog():
     if last_tooltip and last_focus:
         add last_tooltip at cardgame_eventlog_tooltip(
             int(last_focus[0]),
-            int(last_focus[0]-15),
+            int(last_focus[0]-25),
             int(last_focus[1]),
             int(last_focus[1]-14),
-            0.4, 0.1, 0, -10,
+            0.4, 0.125, 0, -10,
             (0.85, 0.5), (0, 0))
-
-    if tooltip and focus:
-        $ last_focus = focus
+        timer 0.3 action [SetScreenVariable("last_tooltip", None), SetScreenVariable("last_focus", None)]
+    if tooltip:
         $ last_tooltip = tooltip
-        add last_tooltip at cardgame_eventlog_tooltip(
-            int(focus[0]-15),
+    if focus:
+        $ last_focus = focus
+    if tooltip and focus:
+        add tooltip at cardgame_eventlog_tooltip(
+            int(focus[0]-25),
             int(focus[0]),
             int(focus[1]-14),
             int(focus[1]),
-            0.1, 0.4, -10, 0,
+            0.125, 0.4, -10, 0,
             (0, 0), (0.85, 0.5))
     else:
         $ last_tooltip = None
