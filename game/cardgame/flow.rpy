@@ -4,11 +4,13 @@ init python in cardgame:
     enemy_stats = CardActorStats(health=30, armor=3)
     player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card, example_stance]*7)
     enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card, example_stance]*7)
-    player = CardActor(name="Player", stats=player_stats, deck=player_deck.copy())
-    enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck.copy())
-    player.opponent = enemy
-    enemy.opponent = player
+    tmp_player = CardActor(name="Player", stats=player_stats, deck=player_deck.copy())
+    tmp_enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck.copy())
+    tmp_player.opponent = tmp_enemy
+    tmp_enemy.opponent = tmp_player
 
+default cardgame.player = cardgame.tmp_player
+default cardgame.enemy = cardgame.tmp_enemy
 default cardgame.round = 0
 default cardgame.winner = None
 default cardgame.current_actor = None

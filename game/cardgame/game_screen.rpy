@@ -236,6 +236,8 @@ screen cardgame_screen(eval_label):
         action ToggleScreen("cardgame_eventlog")
 
 transform eventlog_slide:
+    ysize 850
+    xsize 490
     xpos 1920
     ypos 0.5
     xanchor 0
@@ -254,7 +256,7 @@ transform cardgame_eventlog_tooltip(x1, x2, y1, y2, z1, z2, r1, r2, anchor1, anc
     ease time pos(x2, y2) zoom z2 rotate r2 anchor anchor2
 
 screen cardgame_eventlog():
-
+    modal True
     default hovered_image = None
     default last_tooltip = None
     default last_focus = None
@@ -265,42 +267,61 @@ screen cardgame_eventlog():
         xfill True
         yfill True
         action Hide()
-
     frame at eventlog_slide:
         background "gui/cardgame/event log.png"
-        ysize 850
-        xsize 490
-        padding (10, 20, 0, 20)
-        vbox:
-            spacing 5
-            for event in cardgame.game_events:
-                if isinstance(event, str):
-                    text event:
-                        xalign 1.0
-                        size 30
-                        color "#000"
-                else:
-                    frame:
-                        background ("#e2212188" if event.card_owner != cardgame.player else "#684bec44")
-                        padding (10,0)
-                        ysize 110
-                        imagebutton at cardgame_eventlog_cardimage:
-                            idle event.card.image
-                            hover event.card.image
-                            action NullAction()
-                            hovered [SetScreenVariable("hovered_image", event.card.image), CaptureFocus("asdf")]
-                            unhovered [SetScreenVariable("hovered_image", None), ClearFocus("asdf")]
-                            tooltip (event.card.image)
-                        text event.card.name:
+        padding (10, 10, 0, 10)
+        viewport:
+            mousewheel True 
+            scrollbars "vertical"
+            vbox:
+                xsize 470
+                spacing 5
+                for event in cardgame.game_events:
+                    if isinstance(event, str):
+                        text event:
                             xalign 1.0
-                            yalign 0.5
+                            size 30
+                            color "#000"
+                    else:
+                        frame:
+                            background ("#e2212188" if event.card_owner != cardgame.player else "#684bec44")
+                            padding (10,0,20,0)
+                            ysize 80
+                            imagebutton at cardgame_eventlog_cardimage:
+                                idle event.card.image
+                                hover event.card.image
+                                action NullAction()
+                                hovered [SetScreenVariable("hovered_image", event.card.image), CaptureFocus("asdf")]
+                                unhovered [SetScreenVariable("hovered_image", None), ClearFocus("asdf")]
+                                tooltip (event.card.image)
+                            text event.card.name:
+                                xalign 1.0
+                                xoffset -15
+                                yalign 0.5
+                                yoffset 15
+                            text event.card_owner.name:
+                                size 20
+                                xalign 1.0
+                                xoffset -70
+                                yalign 0.5
+                                yoffset -15
+                            if event.card_owner == cardgame.player: # TODO: Actor based
+                                add "gui/cardgame/head goblin.png":
+                                    xalign 1.0
+                                    xoffset 25
+                                    yalign 0.0
+                                    yoffset -25
+                                    rotate 10
+                                    zoom 0.75
+                            else:
+                                add "gui/cardgame/head elf.png":
+                                    xalign 1.0
+                                    xoffset 25
+                                    yalign 0.0
+                                    yoffset -25
+                                    rotate 10
+                                    zoom 0.75
 
-                        text event.card_owner.name:
-                            size 20
-                            xalign 1.0
-                            yalign 0.5
-                            yoffset -30
-    
     $ tooltip = GetTooltip(screen="cardgame_eventlog")
     $ focus = renpy.focus_coordinates()
     if last_tooltip and last_focus:
