@@ -13,6 +13,13 @@ init -900 python in cardgame:
 
     class Keywords(IntFlag):
         None_ = 0
+        Attack = 1 << 0
+        Defense = 1 << 1
+        Color = 1 << 2
+        Red_Light = 1 << 3
+        Green_Light = 1 << 4
+        Minion = 1 << 5
+        Grapple = 1 << 6
 
     def build_card_image(image_path: str, type: CardType, name: str, desc: str, flavor: str, keywords: Keywords) -> renpy.display.core.Displayable:
         name_size = 50
