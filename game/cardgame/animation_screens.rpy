@@ -142,3 +142,14 @@ screen enemy_draws_card(card):
     text str(x)
     add "gui/cardgame/cardback elf.png" at cardgame_enemy_draws_card(x) #TODO: Actor based cardback
     timer 0.5 action [Function(cardgame.enemy.deck.add_to_hand, card), Hide()]
+
+transform cardgame_remove_stance(card_pos, card_anchor):
+    pos card_pos
+    anchor card_anchor
+    zoom 0.3
+    ease 0.5 zoom 0.45 matrixcolor TintMatrix("#ff0000ff") alpha 0.0
+
+screen remove_stance(card, position, anchor):
+    zorder 8
+    add card.image at cardgame_remove_stance(position, anchor)
+    timer 0.5 action Return()

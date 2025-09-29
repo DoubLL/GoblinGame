@@ -14,4 +14,5 @@ init -880 python in cardgame:
         description="This is an example stance.",
         flavor="A well crafted example stance is a marvel to behold.",
         image="gui/cardgame/images/default image.png",
+        keywords=Keywords.Defense
     )
