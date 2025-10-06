@@ -68,7 +68,7 @@ init -890 python in cardgame:
     class CardActor:
         game: 'CardGame' = None
         opponent: 'CardActor' = None
-        _stances: list['Card'] = []
+        stances: list['Card'] = []
         _player_effects: list['Card'] = []
     
         def __init__(self, name: str, stats: CardActorStats, deck: 'Deck'):
@@ -86,31 +86,27 @@ init -890 python in cardgame:
             )
             actor.game = self.game
             actor.opponent = self.opponent
-            actor._stances = [s.copy() for s in self._stances]
+            actor.stances = [s.copy() for s in self.stances]
             actor._player_effects = [e.copy() for e in self._player_effects]
             return actor
-
-        @property
-        def stances(self) -> list['Card']:
-            return self._stances
 
         def add_stance(self, card: 'Card'):
             renpy.log(f"Adding stance to {self.name}: {card}")
             if card.type_ != CardType.Stance:
                 raise ValueError("Can only add stances with add_stance()")
             # Remove any conflicting stances and call hooks
-            removed_stances = [s for s in self._stances if s.keywords and s.keywords.intersection(card.keywords)]
+            removedstances = [s for s in self.stances if s.keywords and s.keywords.intersection(card.keywords)]
             card_event = CardEvent(self, self.opponent, card)
-            for s in removed_stances:
+            for s in removedstances:
                 for c in self.persistent_cards:
                     c.call_on_lose_stance(card_event, s)
                 for c in self.opponent.persistent_cards:
                     c.call_on_enemy_lose_stance(card_event, s)
             # Add the new stance and call hooks
-            self._stances = [s for s in self._stances if not s.keywords or not s.keywords.intersection(card.keywords)]
+            self.stances = [s for s in self.stances if not s.keywords or not s.keywords.intersection(card.keywords)]
             for c in self.persistent_cards + self.opponent.persistent_cards:
                 c.call_on_gain_stance(card_event, self, True)
-            self._stances.append(card)
+            self.stances.append(card)
 
         @property
         def player_effects(self) -> list['Card']:

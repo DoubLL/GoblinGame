@@ -2,12 +2,14 @@ init python in cardgame:
     # temportary setup
     player_stats = CardActorStats(health=30, armor=3)
     enemy_stats = CardActorStats(health=30, armor=3)
-    player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card, example_stance]*7)
-    enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card, example_stance]*7)
+    player_deck = Deck(name="Player Deck", wincon=example_card, cards=[example_card, example_stance, another_stance]*5)
+    enemy_deck = Deck(name="Enemy Deck", wincon=example_card, cards=[example_card, example_stance, another_stance]*5)
     tmp_player = CardActor(name="Player", stats=player_stats, deck=player_deck.copy())
     tmp_enemy = CardActor(name="Enemy", stats=enemy_stats, deck=enemy_deck.copy())
     tmp_player.opponent = tmp_enemy
     tmp_enemy.opponent = tmp_player
+    tmp_player.stances = [example_stance]
+    tmp_enemy.stances = [example_stance, example_stance, example_stance]
 
 default cardgame.player = cardgame.tmp_player
 default cardgame.enemy = cardgame.tmp_enemy
@@ -149,7 +151,6 @@ label .play_card(card, hand_index=None):
         for c in cardgame.other_actor.persistent_cards:
             c.call_on_other_card_played(cardevent, False)
     $ is_player = (cardgame.current_actor == cardgame.player)
-    $ cardgame.game_events.append(f"{is_player}")
     if card.type_ == cardgame.CardType.Stance:
         call .add_stance(card, for_player=(cardgame.current_actor == cardgame.player))
     else:
@@ -166,42 +167,32 @@ label .play_card(card, hand_index=None):
 
 label .add_stance(card, for_player):
     $ actor = cardgame.current_actor
-    $ cardgame.game_events.append(f"{actor.name} gains stance {card.name}; for_player={for_player}")
-    $ to_remove = [s for s in actor._stances if s.keywords and s.keywords & card.keywords]
-    $ cardgame.game_events.append(f"Removing conflicting stances: {', '.join(s.name for s in to_remove)}") if to_remove else None
+    $ to_remove = [s for s in actor.stances if s.keywords and s.keywords & card.keywords]
     $ i = len(to_remove) - 1
     while i >= 0:
-        $ cardgame.game_events.append(f"Removing stance {to_remove[i].name}")
         call .remove_stance(to_remove[i], for_player)
         $ i -= 1
     
     call screen play_card(card, for_player, True)
-    $ cardgame.game_events.append(f"Player stances before adding: {', '.join(s.name for s in cardgame.player.stances)}")
-    $ cardgame.game_events.append(f"Enemy stances before adding: {', '.join(s.name for s in cardgame.enemy.stances)}")
-    $ actor._stances.append(card)
-    $ cardgame.game_events.append(f"Player stances after adding: {', '.join(s.name for s in cardgame.player.stances)}")
-    $ cardgame.game_events.append(f"Enemy stances after adding: {', '.join(s.name for s in cardgame.enemy.stances)}")
+    $ actor.stances.append(card)
     return
 
 label .remove_stance(card, for_player):
-    $ cardgame.game_events.append(f"{actor.name} loses stance {card.name}; for_player={for_player}")
     #TODO: Can I get the pos from the actual card object on screen?
     if for_player:
         python:
-            index = cardgame.player._stances.index(card)
+            index = cardgame.player.stances.index(card)
             pos = (int(20 + index * 130), 635)
             anchor = (0, 0.5)
-            cardgame.player._stances.remove(card)
-            cardgame.game_events.append(f"Removed stance {card.name} from player stances")
+            cardgame.player.stances.remove(card)
     else:
         python:
-            index = cardgame.enemy._stances.index(card)
+            index = cardgame.enemy.stances.index(card)
             pos = (int(1900 - index * 130), 445)
             anchor = (1.0, 0.5)
-            cardgame.enemy._stances.remove(card)
-            cardgame.game_events.append(f"Removed stance {card.name} from enemy stances")
+            cardgame.enemy.stances.remove(card)
 
-    show screen remove_stance(card, pos, anchor)
+    show screen remove_stance(card, pos, anchor, _tag="remove_stance_" + card.name)
     return
 
 label .reduce_health():

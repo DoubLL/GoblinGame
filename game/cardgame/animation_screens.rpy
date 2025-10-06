@@ -152,4 +152,4 @@ transform cardgame_remove_stance(card_pos, card_anchor):
 screen remove_stance(card, position, anchor):
     zorder 8
     add card.image at cardgame_remove_stance(position, anchor)
-    timer 0.5 action Return()
+    timer 0.5 action Hide()
